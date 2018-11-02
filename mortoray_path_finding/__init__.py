@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random, types, copy
 from enum import Enum
 
 pygame.init()
@@ -22,15 +22,52 @@ class Cell:
 		self.path_from = None
 		self.pos = pos
 
-def create_empty_board( x, y ):
-	return [[Cell(type = CellType.Empty, pos=[ix,iy]) for iy in range(y)] for ix in range(x)]
+		
+class CellGrid:
+	def __init__(self, board):
+		self.board = board
+		
+	def get_size(self):
+		return [len(self.board), len(self.board[0])]
+		
+	def at(self, pos):
+		return self.board[pos[0]][pos[1]]
+		
+	def clone(self):
+		return CellGrid( copy.deepcopy(self.board) )
+		
+	def clear_count(self, count):
+		for o in self.board:
+			for i in o:
+				i.count = count
+				i.path_from = None
+
+	def is_valid_point(self, pos):
+		sz = self.get_size()
+		return pos[0] >= 0 and pos[1] >= 0 and pos[0] < sz[0] and pos[1] < sz[1]
+				
 	
-def create_wall_board( x, y ):
-	board = create_empty_board(x,y)
+def create_empty_maze( x, y ):
+	return types.SimpleNamespace( 
+		board = CellGrid( [[Cell(type = CellType.Empty, pos=[ix,iy]) for iy in range(y)] for ix in range(x)] ),
+		start = [random.randrange(0,x), random.randrange(0,y)],
+		end = [random.randrange(0,x), random.randrange(0,y)])
+	
+def create_wall_maze( x, y ):
+	board = [[Cell(type = CellType.Empty, pos=[ix,iy]) for iy in range(y)] for ix in range(x)]
 	for i in range(0,x):
 		board[i][int(y/2)].type = CellType.Block
-	board[int(x/3)][int(y/2)].type = CellType.Empty
-	return board
+	for i in range(0,y):
+		board[int(x/2)][i].type = CellType.Block
+		
+	board[random.randint(0,x/2-1)][int(y/2)].type = CellType.Empty
+	board[random.randint(x/2+1,x-1)][int(y/2)].type = CellType.Empty
+	board[int(x/2)][random.randint(0,y/2-1)].type = CellType.Empty
+	board[int(x/2)][random.randint(y/2+1,y-1)].type = CellType.Empty
+	
+	return types.SimpleNamespace( board = CellGrid(board),
+		start = [random.randrange(0,x/2), random.randrange(y/2+1,y)],
+		end = [random.randrange(x/2+1,x), random.randrange(0,y/2)] )
 	
 def trans_rect( r, off ):
 	return [r[0] + off[0], r[1] + off[1], r[2], r[3]]
@@ -52,6 +89,8 @@ def main_loop(ui):
 				ui.step(1)
 			if event.key == pygame.K_LEFT:
 				ui.step(-1)
+			if event.key == pygame.K_r:
+				ui.reset()
 		
 		ui.draw(screen)
 		
@@ -87,6 +126,9 @@ class Finder:
 		
 	def step(self, steps):
 		pass
+		
+	def reset(self):
+		pass
 
 
 class BoardMetrics:
@@ -97,8 +139,8 @@ class BoardMetrics:
 		self.top = area[1] + self.spacing
 		self.width = area[2] - area[0] - 2 * self.spacing
 		self.height = area[3] - area[1] - 2 * self.spacing
-		self.num_y = len(board[0])
-		self.num_x = len(board)
+		self.num_y = board.get_size()[1]
+		self.num_x = board.get_size()[0]
 		self.cy = self.height / self.num_y
 		self.cx = self.width / self.num_x
 		
@@ -123,7 +165,7 @@ def draw_board(surface, area, board):
 	}
 	for y in range(0,metrics.num_y):
 		for x in range(0,metrics.num_x):
-			cell = board[x][y]
+			cell = board.at([x,y])
 			clr = colors.get(cell.type, (100,100,0))
 			cell_rect = metrics.cell_rect( [x, y] )
 			
@@ -152,5 +194,3 @@ def draw_path(surface, area, board, path):
 def add_point(a,b):
 	return [a[0] + b[0], a[1] + b[1]]
 
-def is_valid_point(pos, board):
-	return pos[0] >= 0 and pos[1] >= 0 and pos[0] < len(board) and pos[1] < len(board[0])
