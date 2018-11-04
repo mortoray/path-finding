@@ -2,7 +2,7 @@ from . import maze
 import math
 
 def fill_shortest_path(board, start, end, max_distance = math.inf):
-	""" Creates a duplicate of the board with shortest path counts from start-end recorded in each cell. """
+	""" Creates a duplicate of the board and fills the `Cell.count` field with the distance from the start to that cell. """
 	nboard = board.clone()
 	nboard.clear_count(math.inf)
 
@@ -40,3 +40,14 @@ def fill_shortest_path(board, start, end, max_distance = math.inf):
 				open_list.append(ncell_pos)
 
 	return nboard
+
+def backtrack_to_start(board, end):
+	""" Returns the path to the end, assuming the board has been filled in via fill_shortest_path """
+	cell = board.at( end )
+	path = []
+	while cell != None:
+		path.append(cell)
+		cell = cell.path_from
+		
+	return path
+	
