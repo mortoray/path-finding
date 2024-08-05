@@ -52,18 +52,18 @@ def create_empty_maze( x, y ):
 def create_wall_maze( x, y ):
 	board = [[Cell(type = CellType.Empty, pos=[ix,iy]) for iy in range(y)] for ix in range(x)]
 	for i in range(0,x):
-		board[i][int(y/2)].type = CellType.Block
+		board[i][int(y//2)].type = CellType.Block
 	for i in range(0,y):
-		board[int(x/2)][i].type = CellType.Block
+		board[int(x//2)][i].type = CellType.Block
 		
-	board[random.randint(0,x/2-1)][int(y/2)].type = CellType.Empty
-	board[random.randint(x/2+1,x-1)][int(y/2)].type = CellType.Empty
-	board[int(x/2)][random.randint(0,y/2-1)].type = CellType.Empty
-	board[int(x/2)][random.randint(y/2+1,y-1)].type = CellType.Empty
+	board[random.randint(0,x//2-1)][int(y//2)].type = CellType.Empty
+	board[random.randint(x//2+1,x-1)][int(y//2)].type = CellType.Empty
+	board[int(x//2)][random.randint(0,y//2-1)].type = CellType.Empty
+	board[int(x//2)][random.randint(y//2+1,y-1)].type = CellType.Empty
 	
 	return types.SimpleNamespace( board = CellGrid(board),
-		start = [random.randrange(0,x/2), random.randrange(y/2+1,y)],
-		end = [random.randrange(x/2+1,x), random.randrange(0,y/2)] )
+		start = [random.randrange(0,x//2), random.randrange(y//2+1,y)],
+		end = [random.randrange(x//2+1,x), random.randrange(0,y//2)] )
 	
 
 def add_point(a,b):

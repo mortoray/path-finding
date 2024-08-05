@@ -87,7 +87,7 @@ class BoardMetrics:
 		
 	def cell_center(self, pos):
 		rct = self.cell_rect(pos)
-		return [rct[0]+rct[2]/2, rct[1] + rct[3]/2]
+		return [rct[0]+rct[2]//2, rct[1] + rct[3]//2]
 
 def draw_board(surface, area, board):
 	pygame.draw.rect(surface, (0,0,0), area)
@@ -112,8 +112,8 @@ def draw_board(surface, area, board):
 			if cell.count != math.inf:
 				number = cell_font.render( "{}".format(cell.count), True, (255,255,255))
 				surface.blit(number, trans_rect(number.get_rect(), 
-					[cell_rect[0] + (cell_rect[2] - number.get_rect()[2])/2, 
-					cell_rect[1] + (cell_rect[3] -number.get_rect()[3])/2]
+					[cell_rect[0] + (cell_rect[2] - number.get_rect()[2])//2, 
+					cell_rect[1] + (cell_rect[3] -number.get_rect()[3])//2]
 				))
 			
 			mark = marks.get(cell.mark, None)
